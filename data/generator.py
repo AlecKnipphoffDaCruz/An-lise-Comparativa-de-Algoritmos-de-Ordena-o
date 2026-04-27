@@ -11,14 +11,12 @@ def generate(scenario: str, size: int) -> np.ndarray:
         ascending   — vetor já ordenado em ordem crescente (melhor caso p/ Insertion)
         descending  — vetor em ordem decrescente (pior caso p/ Insertion/Selection)
     """
-    # 'match' requer Python 3.10+
-    match scenario:
-        case "random":
-            return rd.randint(0, 1001, size=size)
-        case "ascending":
-            return np.arange(size)
-        case "descending":
-            # Gera [size, size-1, ..., 1] — todos valores positivos (compatível com Radix)
-            return np.arange(size, 0, -1)
-        case _:
-            raise ValueError(f"Cenário desconhecido: {scenario}")
+    if scenario == "random":
+        return rd.randint(0, 1001, size=size)
+    elif scenario == "ascending":
+        return np.arange(size)
+    elif scenario == "descending":
+        # Gera [size, size-1, ..., 1] — todos valores positivos (compatível com Radix)
+        return np.arange(size, 0, -1)
+    else:
+        raise ValueError(f"Cenário desconhecido: {scenario}")
