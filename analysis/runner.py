@@ -30,14 +30,13 @@ SCENARIO_LABELS_PT = {
     "descending": "Decrescente",
 }
 
-# Tamanhos de VALIDAÇÃO — propositadamente pequenos para confirmar corretude
-# do pipeline e dos algoritmos antes de rodar a análise final.
-# Para a rodada final, substituir por:
-#     {"small": 1_000, "medium": 10_000, "large": 50_000, "super_large": 100_000}
+# Tamanhos da análise comparativa conforme requisito (4.1):
+# - pequena (1.000), média (10.000), grande (50.000), super grande (> 50.000)
 SIZES = {
-    "tiny":   100,
-    "small":  500,
-    "medium": 1_000,
+    "small":       1_000,
+    "medium":     10_000,
+    "large":      50_000,
+    "super_large": 100_000,
 }
 
 # Número de repetições por combinação — a média suaviza o ruído de time.perf_counter()
@@ -56,9 +55,12 @@ def run_all() -> dict:
 
     Retorno:
         results[(algo_name, scenario, size_label)] = {
-            "comparisons": float,  # média das RUNS execuções
-            "swaps":       float,
-            "time":        float,
+            "runs": [
+                {"comparisons": float, "swaps": float, "time": float},  # teste 1
+                {"comparisons": float, "swaps": float, "time": float},  # teste 2
+                {"comparisons": float, "swaps": float, "time": float},  # teste 3
+            ],
+            "average": {"comparisons": float, "swaps": float, "time": float}
         }
     """
     results = {}
@@ -82,13 +84,20 @@ def run_all() -> dict:
                         f"{algo_name} falhou em ({scenario}, {size_label})"
                     )
 
-                    runs_data.append(result)
+                    runs_data.append({
+                        "comparisons": result["comparisons"],
+                        "swaps": result["swaps"],
+                        "time": result["time"],
+                    })
 
-                # Média aritmética dos 3 runs — dados brutos são descartados
+                # Armazena os 3 testes individuais + a média
                 results[(algo_name, scenario, size_label)] = {
-                    "comparisons": sum(r["comparisons"] for r in runs_data) / RUNS,
-                    "swaps":       sum(r["swaps"]       for r in runs_data) / RUNS,
-                    "time":        sum(r["time"]        for r in runs_data) / RUNS,
+                    "runs": runs_data,
+                    "average": {
+                        "comparisons": sum(r["comparisons"] for r in runs_data) / RUNS,
+                        "swaps": sum(r["swaps"] for r in runs_data) / RUNS,
+                        "time": sum(r["time"] for r in runs_data) / RUNS,
+                    }
                 }
 
     return results

@@ -88,16 +88,36 @@ def write_report(results: dict, output_path: str = "results/relatorio.md") -> Pa
         for scenario in SCENARIOS:
             lines.append(f"#### Cenário: {SCENARIO_LABELS_PT[scenario]}")
             lines.append("")
-            lines.append("| Algoritmo       | Tempo (s)   | Comparações | Trocas      |")
-            lines.append("|-----------------|-------------|-------------|-------------|")
+            lines.append("| Algoritmo       | Teste | Tempo (s)   | Comparações | Trocas      |")
+            lines.append("|-----------------|-------|-------------|-------------|-------------|")
+            
             for algo_name in ALGORITHMS:
                 r = results[(algo_name, scenario, size_label)]
+                runs = r["runs"]
+                avg = r["average"]
+                
+                # Exibe cada um dos 3 testes
+                for test_num, test_data in enumerate(runs, start=1):
+                    lines.append(
+                        f"| {algo_name:<15} "
+                        f"| {test_num}     "
+                        f"| {test_data['time']:>11.6f} "
+                        f"| {test_data['comparisons']:>11,.0f} "
+                        f"| {test_data['swaps']:>11,.0f} |"
+                    )
+                
+                # Exibe a linha de MÉDIA em negrito
                 lines.append(
-                    f"| {algo_name:<15} "
-                    f"| {r['time']:>11.6f} "
-                    f"| {r['comparisons']:>11,.0f} "
-                    f"| {r['swaps']:>11,.0f} |"
+                    f"| **{algo_name:<14}** "
+                    f"| **MÉD** "
+                    f"| **{avg['time']:>10.6f}** "
+                    f"| **{avg['comparisons']:>10,.0f}** "
+                    f"| **{avg['swaps']:>10,.0f}** |"
                 )
+                lines.append("|                 |-------|             |             |             |")
+            
+            # Remove a última linha de separador desnecessária
+            lines.pop()
             lines.append("")
 
     # Seção 4 — Conclusões (placeholder até rodada final)
