@@ -43,7 +43,7 @@ SIZES = {
 RUNS = 3
 
 
-def run_all() -> dict:
+def run_all(progress_callback=None) -> dict:
     """
     Executa todos os algoritmos em todos os cenários e tamanhos.
 
@@ -63,7 +63,12 @@ def run_all() -> dict:
             "average": {"comparisons": float, "swaps": float, "time": float}
         }
     """
+    # Garante reprodutibilidade dos dados aleatórios em cada execução
+    np.random.seed(42)
+    
     results = {}
+    total_steps = len(SCENARIOS) * len(SIZES) * len(ALGORITHMS)
+    completed_steps = 0
 
     for scenario in SCENARIOS:
         for size_label, size in SIZES.items():
@@ -99,5 +104,16 @@ def run_all() -> dict:
                         "time": sum(r["time"] for r in runs_data) / RUNS,
                     }
                 }
+
+                completed_steps += 1
+                if progress_callback is not None:
+                    progress_callback(
+                        completed_steps,
+                        total_steps,
+                        algo_name,
+                        scenario,
+                        size_label,
+                        results[(algo_name, scenario, size_label)],
+                    )
 
     return results

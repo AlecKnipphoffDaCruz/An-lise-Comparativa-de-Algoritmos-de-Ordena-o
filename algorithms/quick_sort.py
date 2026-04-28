@@ -22,10 +22,17 @@ def quick_sort(arr: np.ndarray) -> dict:
 
 def _quick_sort_recursive(array: np.ndarray, low: int, high: int, counters: dict) -> None:
     # Caso base: subvetor com 0 ou 1 elemento já está ordenado
-    if low < high:
+    while low < high:
         pivot_idx = _partition(array, low, high, counters)
-        _quick_sort_recursive(array, low, pivot_idx - 1, counters)
-        _quick_sort_recursive(array, pivot_idx + 1, high, counters)
+
+        # Recorre apenas no menor lado para limitar a profundidade da pilha.
+        # O outro lado é processado via iteração no próprio loop.
+        if pivot_idx - low < high - pivot_idx:
+            _quick_sort_recursive(array, low, pivot_idx - 1, counters)
+            low = pivot_idx + 1
+        else:
+            _quick_sort_recursive(array, pivot_idx + 1, high, counters)
+            high = pivot_idx - 1
 
 
 def _partition(array: np.ndarray, low: int, high: int, counters: dict) -> int:
